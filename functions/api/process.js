@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
     let uploadId = null;
     if (env.D1_DB) {
       const dbResult = await env.D1_DB.prepare(
-        "INSERT INTO photos (original_url, result_url) VALUES (?, '') RETURNING id"
+        "INSERT INTO photos (original_url) VALUES (?) RETURNING id"
       ).bind(originalUrl).first();
       if (dbResult && dbResult.id) {
         uploadId = dbResult.id;
@@ -35,50 +35,10 @@ export async function onRequestPost(context) {
       uploadId = Date.now(); // 만약 D1 바인딩이 없다면 임시 ID
     }
 
-    // 3. Gemini API 호출하여 어깨 좌표 파악
-    const buffer = await imageFile.arrayBuffer();
-    const base64Bytes = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-    
-    const geminiPayload = {
-      contents: [{
-        parts: [
-          { text: 'Analyze this image. Find the optimal pixel coordinates (x, y) on the person\'s shoulder (left or right) where a small mascot could sit. The image has original size and you should return coordinates mapped to its original dimensions. Format your answer as EXACT JSON like this: {"x": 100, "y": 200, "side": "left"}. Do not add any markdown formatting or extra text, just the pure JSON.' },
-          { inlineData: { mimeType: imageFile.type, data: base64Bytes } }
-        ]
-      }]
-    };
-
-    const apiKey = env.GEMINI_API_KEY;
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const geminiRes = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(geminiPayload)
-    });
-
-    const geminiData = await geminiRes.json();
-    console.log(JSON.stringify(geminiData));
-
-    let coords = { x: 0, y: 0, side: 'left' }; // 기본값
-
-    if (geminiData.candidates && geminiData.candidates.length > 0) {
-      let textContent = geminiData.candidates[0].content.parts[0].text.trim();
-      textContent = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
-      try {
-        coords = JSON.parse(textContent);
-      } catch (e) {
-        console.error("Gemini JSON Parse Error:", textContent);
-        // 파싱 실패시 가운데로 임시 배치
-        coords = { x: 200, y: 200, side: 'left' };
-      }
-    }
-
+    // 3. 반환
     return new Response(JSON.stringify({ 
       uploadId,
-      x: coords.x, 
-      y: coords.y, 
-      side: coords.side 
+      originalUrl
     }), {
       headers: { 'Content-Type': 'application/json' }
     });

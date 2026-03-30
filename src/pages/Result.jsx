@@ -1,166 +1,192 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
-import { Share2, Download, Home } from 'lucide-react';
+import { Share2, Download, Home, Loader } from 'lucide-react';
 
 function Result() {
   const navigate = useNavigate();
   const { photoData } = useContext(AppContext);
-  const canvasRef = useRef(null);
-  const [resultImg, setResultImg] = useState(null);
-  const [isSynthesizing, setIsSynthesizing] = useState(true);
+  
+  const [images, setImages] = useState({
+    step1: null,
+    step2: null,
+    step3: null
+  });
+  
+  const [loading, setLoading] = useState({
+    step1: true,
+    step2: false,
+    step3: false
+  });
+  
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!photoData.originalUrl || !photoData.coordinates) {
-      // 데이터가 없으면 홈으로 (새로고침 방지)
+    // If we land here directly without base64 user image or uploadId from earlier
+    if (!photoData.uploadId || !photoData.imageBase64) {
       navigate('/');
       return;
     }
 
-    const synthesizeImage = async () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      
-      const userImg = new Image();
-      userImg.src = photoData.originalUrl;
-      
-      const mascotImg = new Image();
-      // 사용할 마스코트 이미지 (jpg 혹은 png)
-      mascotImg.src = '/꽃등이.jpg';
-
-      await Promise.all([
-        new Promise((resolve) => { userImg.onload = resolve; }),
-        new Promise((resolve) => { mascotImg.onload = resolve; })
-      ]);
-
-      // 캔버스 크기를 원본 이미지에 맞춤
-      canvas.width = userImg.width;
-      canvas.height = userImg.height;
-
-      // 원본 이미지 그리기
-      ctx.drawImage(userImg, 0, 0);
-
-      // 마스코트 합성 (Gemini가 반환한 x, y 좌표 및 스케일 조정)
-      // 기준 크기를 원본사진 너비의 25% 정도로 잡는다고 가정
-      const mascotScale = (userImg.width * 0.25) / mascotImg.width; 
-      const mascotWidth = mascotImg.width * mascotScale;
-      const mascotHeight = mascotImg.height * mascotScale;
-
-      const { x, y } = photoData.coordinates;
-
-      // 어깨 좌표를 중심으로 약간 위쪽에 캐릭터가 앉도록 오프셋 적용
-      const targetX = x - (mascotWidth / 2);
-      const targetY = y - (mascotHeight);
-
-      // (선택사항) 투명도나 블렌딩 모드가 필요하다면: ctx.globalCompositeOperation = 'source-over';
-      ctx.drawImage(mascotImg, targetX, targetY, mascotWidth, mascotHeight);
-
-      // 결과 이미지를 Base64 혹은 Blob으로 추출
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      setResultImg(dataUrl);
-
-      // 합성 후 백엔드에 저장 (D1/R2)
+    const runSteps = async () => {
       try {
-        await fetch('/api/save-result', {
+        // --- Step 1 ---
+        const res1 = await fetch('/api/generate/step1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             uploadId: photoData.uploadId,
-            resultDataUrl: dataUrl
+            imageBase64: photoData.imageBase64,
+            mimeType: photoData.mimeType
           })
         });
-      } catch (err) {
-        console.error("Result save error:", err);
-      }
+        if (!res1.ok) throw new Error("Step 1 Failed");
+        const data1 = await res1.json();
+        const img1Base64 = data1.result1Base64;
+        setImages(prev => ({ ...prev, step1: `data:image/jpeg;base64,${img1Base64}` }));
+        setLoading(prev => ({ ...prev, step1: false, step2: true }));
 
-      setIsSynthesizing(false);
+        // --- Step 2 ---
+        const res2 = await fetch('/api/generate/step2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uploadId: photoData.uploadId,
+            imageBase64: img1Base64,
+            mimeType: "image/jpeg"
+          })
+        });
+        if (!res2.ok) throw new Error("Step 2 Failed");
+        const data2 = await res2.json();
+        const img2Base64 = data2.result2Base64;
+        setImages(prev => ({ ...prev, step2: `data:image/jpeg;base64,${img2Base64}` }));
+        setLoading(prev => ({ ...prev, step2: false, step3: true }));
+
+        // --- Step 3 ---
+        const res3 = await fetch('/api/generate/step3', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uploadId: photoData.uploadId,
+            imageBase64: img2Base64,
+            mimeType: "image/jpeg"
+          })
+        });
+        if (!res3.ok) throw new Error("Step 3 Failed");
+        const data3 = await res3.json();
+        const img3Base64 = data3.result3Base64;
+        setImages(prev => ({ ...prev, step3: `data:image/jpeg;base64,${img3Base64}` }));
+        setLoading(prev => ({ ...prev, step3: false }));
+
+      } catch (err) {
+        console.error("Step Execution Error:", err);
+        setError("이미지 생성 중 문제가 발생했습니다.");
+        setLoading({ step1: false, step2: false, step3: false });
+      }
     };
 
-    synthesizeImage();
-  }, [photoData, navigate]);
+    runSteps();
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once to prevent double-fetching on React Strict Mode. It uses context values securely.
 
-  const handleShare = async () => {
-    if (navigator.share && resultImg) {
+  const handleShare = async (imgDataUrl, stepName) => {
+    if (navigator.share && imgDataUrl) {
       try {
-        // 백엔드 통계용 호출
         fetch(`/api/share/${photoData.uploadId}`, { method: 'POST' });
-
-        // 웹 공유 API
-        const response = await fetch(resultImg);
+        const response = await fetch(imgDataUrl);
         const blob = await response.blob();
-        const file = new File([blob], 'cherryblossom.jpg', { type: 'image/jpeg' });
+        const file = new File([blob], `cherryblossom-${stepName}.jpg`, { type: 'image/jpeg' });
         
         await navigator.share({
           title: '서초 양재천 벚꽃등축제',
-          text: '마스코트 꽃등이를 엎어왔어요!',
+          text: `마스코트 꽃등이 AI 변신!`,
           files: [file]
         });
       } catch (error) {
         console.error('공유 실패:', error);
       }
     } else {
-      alert("현재 브라우저에서는 공유 기능을 지원하지 않거나 이미지가 아직 준비되지 않았습니다.");
-      // 백엔드 통계용 호출
+      alert("현재 환경에서는 기본 공유를 지원하지 않거나 파일이 비었습니다.");
       fetch(`/api/share/${photoData.uploadId}`, { method: 'POST' });
     }
   };
 
-  const handleSave = () => {
-    if (!resultImg) return;
+  const handleSave = (imgDataUrl, stepName) => {
+    if (!imgDataUrl) return;
     const link = document.createElement('a');
-    link.href = resultImg;
-    link.download = '꽃등이-엎어가기.jpg';
+    link.href = imgDataUrl;
+    link.download = `꽃등이-${stepName}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  const ResultCard = ({ title, imgData, isLoading, stepName, activeText }) => (
+    <div style={{ width: '100%', maxWidth: '350px', margin: '0 auto 3rem auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <h3 style={{ color: 'var(--primary)', textAlign: 'center', fontSize: '1.2rem' }}>{title}</h3>
+      <div style={{ width: '100%', aspectRatio: '1/1', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', borderRadius: 'var(--border-radius)', overflow: 'hidden', backgroundColor: 'var(--gray-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {isLoading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', color: '#888' }}>
+            <Loader className="spinner-icon" size={32} />
+            <p style={{ fontSize: '0.9rem' }}>{activeText}</p>
+          </div>
+        ) : imgData ? (
+          <img src={imgData} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ color: '#ccc', fontSize: '0.9rem' }}>대기 중...</div>
+        )}
+      </div>
+      
+      {imgData && (
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="secondary" onClick={() => handleSave(imgData, stepName)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.9rem', padding: '10px' }}>
+            <Download size={18} /> 저장
+          </button>
+          <button className="primary" onClick={() => handleShare(imgData, stepName)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.9rem', padding: '10px' }}>
+            <Share2 size={18} /> 공유
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="page-container" style={{ position: 'relative' }}>
-      {/* 홈 버튼 */}
-      <button 
-        onClick={() => navigate('/')}
-        style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}
-      >
+    <div className="page-container" style={{ position: 'relative', padding: '20px 0 60px 0', overflowX: 'hidden' }}>
+      <button onClick={() => navigate('/')} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', zIndex: 10 }}>
         <Home size={28} />
       </button>
 
-      <h1 style={{ color: 'var(--primary)', marginBottom: '1.5rem', marginTop: '30px' }}>
-        성공적으로<br/>엎어왔어요!
+      <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', marginTop: '10px', textAlign: 'center', fontSize: '1.8rem' }}>
+        AI 벚꽃등 변신<br/>결과물
       </h1>
-      
-      <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto 2rem auto', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}>
-        {/* 숨김 처리된 캔버스 */}
-        <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-        
-        {/* 실제 화면에 보여지는 결과 이미지 */}
-        {isSynthesizing ? (
-          <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee' }}>
-            마무리 작업 중...
-          </div>
-        ) : (
-          <img src={resultImg} alt="결과" style={{ width: '100%', display: 'block' }} />
-        )}
-      </div>
+      <p style={{ textAlign: 'center', marginBottom: '2rem', color: '#666', fontSize: '0.9rem' }}>아래로 스크롤하여 3단계 변신을 확인하세요!</p>
 
-      <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
-        <button 
-          className="secondary" 
-          onClick={handleSave} 
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-        >
-          <Download size={20} />
-          저장하기
-        </button>
-        <button 
-          className="primary" 
-          onClick={handleShare} 
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-        >
-          <Share2 size={20} />
-          공유하기
-        </button>
-      </div>
+      {error && <div style={{ color: 'red', textAlign: 'center', marginBottom: '20px', padding: '10px', backgroundColor: '#ffebe9', borderRadius: '8px' }}>{error}</div>}
+
+      <ResultCard 
+        title="1. 실사 합성 (원본 Redraw)" 
+        imgData={images.step1} 
+        isLoading={loading.step1} 
+        stepName="step1"
+        activeText="꽃등이가 어깨에 올라타는 중..."
+      />
+
+      <ResultCard 
+        title="2. 컬러링 북 아트" 
+        imgData={images.step2} 
+        isLoading={loading.step2} 
+        stepName="step2"
+        activeText="아이들이 좋아하는 선화로 바꾸는 중..."
+      />
+
+      <ResultCard 
+        title="3. 윤곽선 없는 수채화" 
+        imgData={images.step3} 
+        isLoading={loading.step3} 
+        stepName="step3"
+        activeText="수채화 물감을 조심스럽게 칠하는 중..."
+      />
     </div>
   );
 }

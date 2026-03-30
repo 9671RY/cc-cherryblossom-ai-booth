@@ -35,16 +35,20 @@ function Loading() {
           throw new Error('API 호출에 실패했습니다.');
         }
 
-        const data = await response.json();
-        
-        // Context 업데이트 후 바로 Result로 이동
-        setPhotoData(prev => ({
-          ...prev,
-          uploadId: data.uploadId,
-          coordinates: { x: data.x, y: data.y, side: data.side }
-        }));
-        
-        navigate('/result');
+        // FileReader로 원본 이미지를 Base64 인코딩하여 Context에 저장 (생성 API에서 사용)
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Data = reader.result.split(',')[1];
+          setPhotoData(prev => ({
+            ...prev,
+            uploadId: data.uploadId,
+            originalUrl: data.originalUrl,
+            imageBase64: base64Data,
+            mimeType: photoData.originalFile.type
+          }));
+          navigate('/result');
+        };
+        reader.readAsDataURL(photoData.originalFile);
 
       } catch (err) {
         console.error(err);
