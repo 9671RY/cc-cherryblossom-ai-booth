@@ -93,8 +93,8 @@ function Result() {
         <Home size={28} />
       </button>
 
-      <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', marginTop: '10px', textAlign: 'center', fontSize: '1.8rem', width: '100%' }}>
-        짠! 꽃등이가<br/>놀러왔어요!
+      <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', marginTop: '10px', textAlign: 'center', fontSize: '1.25rem', width: '100%', fontWeight: '500' }}>
+        축제를 함께 해주셔서 감사합니다 ❤️
       </h1>
 
       {error ? (
