@@ -13,12 +13,19 @@ export async function onRequestPost(context) {
     // Initialize Google Gen AI with the provided API key
     const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
-    // 수정된 프롬프트: 비율 강제를 제거하고, 마스코트에 대한 자세한 영문/국문 묘사 추가
-    const prompt = "Please redraw this image. Based strictly on the original image, add a small, cute pink cherry blossom lantern mascot character named 'Kkot-deung-i' standing on the person's shoulder and waving its hand happily. Keep the original face and background style as close to the original as possible. (Maintain original aspect ratio)";
+    // 수정된 프롬프트: 원본 사진(얼굴, 배경, 스타일)을 100% 동일하게 유지하면서 어깨에만 캐릭터 합성 
+    const prompt = "Act as an expert image editor. Your ONLY task is to add a small, cute pink cherry blossom lantern mascot character named 'Kkot-deung-i' standing naturally on the person's shoulder and waving its hand happily. You MUST completely preserve the original person's face, body, clothing, and the background exactly as they are without ANY style changes or alterations. The final image must look like the original photo with just the mascot added. Maintain original aspect ratio.";
     
-    const response = await ai.models.generateContent({
+    // 사용자가 요청한 최신 멀티턴(Chat) 방식 및 responseModalities 적용
+    const chat = ai.chats.create({
       model: "gemini-3.1-flash-image-preview",
-      contents: [
+      config: {
+        responseModalities: ["TEXT", "IMAGE"]
+      }
+    });
+
+    const response = await chat.sendMessage({
+      message: [
         { text: prompt },
         { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } }
       ]
