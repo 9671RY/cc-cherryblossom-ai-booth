@@ -28,7 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../.wrangler/tmp/bundle-YU7Vmx/checked-fetch.js
+// ../.wrangler/tmp/bundle-xZIpI3/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -46,7 +46,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-YU7Vmx/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-xZIpI3/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -18350,7 +18350,7 @@ async function onRequestPost(context) {
     const mascotBuffer = await mascotRes.arrayBuffer();
     const mascotBase64 = arrayBufferToBase64(mascotBuffer);
     const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-    const basePrompt = "\uC704\uC758 \uB450 \uC774\uBBF8\uC9C0\uB97C \uCC38\uACE0\uD558\uC5EC, \uCCAB \uBC88\uC9F8 \uC0AC\uC9C4(\uC0AC\uC6A9\uC790 \uC5BC\uAD74 \uC0AC\uC9C4)\uC758 \uC18D\uC131\uC744 \uCD5C\uB300\uD55C \uC720\uC9C0\uD558\uBA74\uC11C \uC0AC\uC6A9\uC790\uC758 \uC5B4\uAE68 \uC704\uC5D0 \uB450 \uBC88\uC9F8 \uC0AC\uC9C4(\uADC0\uC5EC\uC6B4 \uD551\uD06C\uC0C9 \uBC9A\uAF43 \uCE90\uB9AD\uD130 '\uAF43\uB4F1\uC774')\uC774 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uC549\uC544\uC788\uB294 \uD569\uC131 \uC7A5\uBA74\uC744 \uBD80\uB4DC\uB7FD\uACE0 \uB530\uB73B\uD55C \uC218\uCC44\uD654(Watercolor) \uC77C\uB7EC\uC2A4\uD2B8\uB808\uC774\uC158 \uC2A4\uD0C0\uC77C\uB85C \uD558\uB098\uB85C \uD569\uCCD0\uC11C \uC0C8\uB86D\uAC8C \uADF8\uB824\uC918. \uC6D0\uBCF8 \uC778\uBB3C\uC758 \uD2B9\uC9D5\uC744 \uC0B4\uB9AC\uB418 \uC218\uCC44\uD654\uD48D\uC73C\uB85C \uD45C\uD604\uD574\uC918.";
+    const basePrompt = "\uC704\uC758 \uB450 \uC774\uBBF8\uC9C0\uB97C \uCC38\uACE0\uD558\uC5EC, \uCCAB \uBC88\uC9F8 \uC0AC\uC9C4(\uC0AC\uC6A9\uC790 \uC5BC\uAD74 \uC0AC\uC9C4)\uC758 \uC18D\uC131\uC744 \uCD5C\uB300\uD55C \uC720\uC9C0\uD558\uBA74\uC11C \uC0AC\uC6A9\uC790\uC758 \uC5B4\uAE68 \uC704\uC5D0 \uB450 \uBC88\uC9F8 \uC0AC\uC9C4(\uADC0\uC5EC\uC6B4 \uD551\uD06C\uC0C9 \uBC9A\uAF43 \uCE90\uB9AD\uD130 '\uAF43\uB4F1\uC774')\uC774 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uC62C\uB824\uC838 \uC788\uB294 \uD569\uC131 \uC7A5\uBA74\uC744 \uBD80\uB4DC\uB7FD\uACE0 \uB530\uB73B\uD55C \uC218\uCC44\uD654(Watercolor) \uC77C\uB7EC\uC2A4\uD2B8\uB808\uC774\uC158 \uC2A4\uD0C0\uC77C\uB85C \uD558\uB098\uB85C \uD569\uCCD0\uC11C \uC0C8\uB86D\uAC8C \uADF8\uB824\uC918. \uC6D0\uBCF8 \uC778\uBB3C\uC758 \uD2B9\uC9D5\uC744 \uC0B4\uB9AC\uB418 \uC218\uCC44\uD654\uD48D\uC73C\uB85C \uD45C\uD604\uD574\uC918.";
     const hiddenPrompt = "\uBC18\uB4DC\uC2DC \uC778\uBB3C\uACFC \uCE90\uB9AD\uD130 \uBAA8\uB450 \uBC1D\uACE0 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uC6C3\uB294 \uC5BC\uAD74\uB85C \uADF8\uB824\uC918.";
     const finalPrompt = userPrompt ? `${basePrompt} \uCD94\uAC00 \uC694\uCCAD: ${userPrompt} (${hiddenPrompt})` : `${basePrompt} (${hiddenPrompt})`;
     const response = await ai.models.generateContent({
@@ -18533,11 +18533,11 @@ var init_functionsRoutes_0_06383572287406536 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-YU7Vmx/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-xZIpI3/middleware-loader.entry.ts
 init_functionsRoutes_0_06383572287406536();
 init_checked_fetch();
 
-// ../.wrangler/tmp/bundle-YU7Vmx/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-xZIpI3/middleware-insertion-facade.js
 init_functionsRoutes_0_06383572287406536();
 init_checked_fetch();
 
@@ -19038,7 +19038,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-YU7Vmx/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-xZIpI3/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -19072,7 +19072,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-YU7Vmx/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-xZIpI3/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

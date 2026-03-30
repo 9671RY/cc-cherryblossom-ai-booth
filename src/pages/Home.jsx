@@ -9,7 +9,7 @@ function Home() {
     <div className="page-container" style={{ gap: '2rem' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.5' }}>
-          <span style={{ color: '#222' }}>2026 서초 양재천</span><br/>
+          <span style={{ color: '#222' }}>2026 서초 양재</span><br/>
           <span style={{ color: 'var(--primary)' }}>벚꽃등 축제</span><br/>
           <span style={{ color: '#222' }}>마스코트 꽃등이</span>
         </h1>
