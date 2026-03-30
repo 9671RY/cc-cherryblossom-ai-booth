@@ -31,7 +31,11 @@ function Result() {
           })
         });
         
-        if (!res.ok) throw new Error("Image Generation Failed");
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Image Generation Failed");
+        }
+        
         const data = await res.json();
         
         if (!isMounted) return;
@@ -41,7 +45,7 @@ function Result() {
       } catch (err) {
         console.error("Execution Error:", err);
         if (isMounted) {
-          setError("이미지를 생성하는 데 실패했습니다. 앱 제한이나 모델 오류일 수 있습니다.");
+          setError(`서버 에러가 발생했습니다: ${err.message}. API 키 권한(403)이나 한도(429) 문제일 수 있습니다.`);
           setIsLoading(false);
         }
       }
