@@ -35,6 +35,8 @@ function Loading() {
           throw new Error('API 호출에 실패했습니다.');
         }
 
+        const data = await response.json();
+
         // FileReader로 원본 이미지를 Base64 인코딩하여 Context에 저장 (생성 API에서 사용)
         const reader = new FileReader();
         reader.onloadend = () => {
