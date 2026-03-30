@@ -1,3 +1,5 @@
+import { GoogleGenAI } from "@google/genai";
+
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
@@ -8,45 +10,35 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ error: "Missing uploadId or image data" }), { status: 400 });
     }
 
-    // 1. Gemini 3.1 Flash Image Preview API 호출 (실사 + 꽃등이 1:1 비율 합성)
-    const prompt = "Upload된 이 사람의 원본 사진을 최대한 그대로 유지하면서, 참고용으로 제공된 귀여운 분홍색 벚꽃등 캐릭터(Kkot-deung-i)가 인물의 어깨 위에 꼭 올라타서 활짝 웃고 있는 모습으로 재창조(Redraw)해줘. (aspect ratio is 1:1)";
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${env.GEMINI_API_KEY}`;
-    
-    // 이 모델은 이미지를 입력으로 지원하므로 image -> text/image 생성을 시도합니다.
-    const geminiPayload = {
-      contents: [{
-        parts: [
-          { text: prompt },
-          { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } }
-        ]
-      }]
-    };
+    // Initialize Google Gen AI with the provided API key
+    const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
-    const geminiRes = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(geminiPayload)
+    // 수정된 프롬프트: 비율 강제를 제거하고, 마스코트에 대한 자세한 영문/국문 묘사 추가
+    const prompt = "Please redraw this image. Based strictly on the original image, add a small, cute pink cherry blossom lantern mascot character named 'Kkot-deung-i' standing on the person's shoulder and waving its hand happily. Keep the original face and background style as close to the original as possible. (Maintain original aspect ratio)";
+    
+    // 이 모델은 이미지를 입력으로 지원해야 정상 작동합니다.
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-flash-image-preview",
+      contents: [
+        { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } },
+        prompt
+      ]
     });
 
-    if (!geminiRes.ok) {
-      const errorText = await geminiRes.text();
-      throw new Error(`Gemini API Error: ${errorText}`);
-    }
-
-    const geminiData = await geminiRes.json();
-    
-    // 생성된 Base64 이미지 추출
     let generatedBase64 = null;
-    const parts = geminiData.candidates?.[0]?.content?.parts || [];
-    for (const part of parts) {
-      if (part.inlineData && part.inlineData.data) {
-        generatedBase64 = part.inlineData.data;
-        break;
+
+    // 패키지의 응답 형식에 따라 base64 이미지를 추출합니다.
+    if (response.candidates && response.candidates[0].content && response.candidates[0].content.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData && part.inlineData.data) {
+          generatedBase64 = part.inlineData.data;
+          break;
+        }
       }
     }
 
     if (!generatedBase64) {
-      throw new Error("Gemini returned successfully, but no image data was found.");
+      throw new Error("Gemini returned successfully, but no image data was found in response.");
     }
 
     // 2. R2 버킷에 저장
@@ -83,7 +75,7 @@ export async function onRequestPost(context) {
     });
 
   } catch (error) {
-    console.error("Step 1 API Error:", error.stack || error);
+    console.error("Step 1 API Error:", error.message, error.stack);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }

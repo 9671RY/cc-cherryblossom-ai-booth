@@ -27,11 +27,11 @@ function Admin() {
       <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
         {stats.photos.map((photo) => (
           <div key={photo.id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '8px' }}>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {photo.result1_url ? <img src={photo.result1_url} alt="Step 1" style={{ width: '33%', aspectRatio: '1', objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: '33%', aspectRatio: '1', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>X</div>}
-              {photo.result2_url ? <img src={photo.result2_url} alt="Step 2" style={{ width: '33%', aspectRatio: '1', objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: '33%', aspectRatio: '1', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>X</div>}
-              {photo.result3_url ? <img src={photo.result3_url} alt="Step 3" style={{ width: '33%', aspectRatio: '1', objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: '33%', aspectRatio: '1', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>X</div>}
-            </div>
+            {photo.result1_url ? (
+               <img src={photo.result1_url} alt="Result" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: '4px' }} />
+            ) : (
+               <div style={{ width: '100%', aspectRatio: '1', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No Img</div>
+            )}
             <div style={{ fontSize: '0.8rem', marginTop: '8px' }}>
               ID: {photo.id} <br/>
               Shares: {photo.share_count} <br/>

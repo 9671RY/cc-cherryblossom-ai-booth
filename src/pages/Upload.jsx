@@ -23,20 +23,20 @@ function Upload() {
   };
 
   return (
-    <div className="page-container">
-      <h1 style={{ color: 'var(--primary)', marginBottom: '3rem' }}>사진 업로드</h1>
+    <div className="page-container" style={{ padding: '20px 15px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <h1 style={{ color: 'var(--primary)', marginBottom: '1.5rem', marginTop: '1rem', fontSize: '1.8rem', textAlign: 'center' }}>사진 업로드</h1>
       
       <div 
         style={{ 
           width: '100%', 
-          maxWidth: '300px', 
+          maxWidth: '320px', 
           aspectRatio: '4/5', 
           backgroundColor: 'var(--gray-bg)', 
           borderRadius: 'var(--border-radius)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: '3rem',
+          marginBottom: '2rem',
           position: 'relative',
           overflow: 'hidden',
           border: '2px dashed #ccc'
@@ -70,14 +70,14 @@ function Upload() {
       <button 
         className="primary" 
         onClick={() => fileInputRef.current.click()}
-        style={{ padding: '18px 24px' }}
+        style={{ padding: '15px 20px', width: '100%', maxWidth: '320px', fontSize: '1.05rem', fontWeight: 'bold' }}
       >
         축제장에서 촬영한 사진 올려주기
       </button>
 
       <button 
         className="secondary" 
-        style={{ marginTop: '1rem', border: 'none', color: '#888' }}
+        style={{ marginTop: '1rem', border: 'none', color: '#888', width: '100%', maxWidth: '320px', padding: '10px' }}
         onClick={() => navigate('/')}
       >
         뒤로 가기
