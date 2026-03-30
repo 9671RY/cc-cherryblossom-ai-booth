@@ -16,12 +16,11 @@ export async function onRequestPost(context) {
     // 수정된 프롬프트: 비율 강제를 제거하고, 마스코트에 대한 자세한 영문/국문 묘사 추가
     const prompt = "Please redraw this image. Based strictly on the original image, add a small, cute pink cherry blossom lantern mascot character named 'Kkot-deung-i' standing on the person's shoulder and waving its hand happily. Keep the original face and background style as close to the original as possible. (Maintain original aspect ratio)";
     
-    // 이 모델은 이미지를 입력으로 지원해야 정상 작동합니다.
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-image-preview",
       contents: [
-        { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } },
-        prompt
+        { text: prompt },
+        { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } }
       ]
     });
 
