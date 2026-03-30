@@ -65,7 +65,7 @@ function Result() {
         
         await navigator.share({
           title: '서초 양재천 벚꽃등축제',
-          text: `내 어깨 위의 꽃등이를 확인해 보세요!`,
+          text: `올해 벚꽃축제는 서초문화원 양재천벚꽃축제다.\n볼거리 먹거리 놀거리 최고 #서초문화원 #주식회사문화콘텐츠 #서초양재천벚꽃등축제 #꽃등이 #귀엽 #애니모먼트 #ai`,
           files: [file]
         });
       } catch (error) {

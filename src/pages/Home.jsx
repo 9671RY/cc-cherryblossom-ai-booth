@@ -8,11 +8,11 @@ function Home() {
   return (
     <div className="page-container" style={{ gap: '2rem' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: 'var(--primary)', fontSize: '2rem', marginBottom: '1rem' }}>
-          서초 양재천<br />벚꽃등축제
+        <h1 style={{ color: 'var(--primary)', fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.4' }}>
+          2026 서초 양재천 벚꽃 등 축제<br/>마스코트 꽃등이
         </h1>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: '500' }}>
-          마스코트 꽃등이<br />엎어가세요!
+        <h2 style={{ fontSize: '1.3rem', fontWeight: '500' }}>
+          우리 축제 마스코트 꽃등이 업어가세요
         </h2>
       </div>
 
@@ -27,7 +27,7 @@ function Home() {
       <div style={{ width: '100%', marginTop: 'auto' }}>
         <button className="primary" onClick={() => navigate('/upload')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <Sparkles size={20} />
-          그림 그리기 시작
+          꽃등이 업어가기
         </button>
         
         <p className="notice">

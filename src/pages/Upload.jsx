@@ -133,7 +133,7 @@ function Upload() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
         }}
       >
-        <p style={{ fontSize: '0.9rem', lineHeight: '1.5', textAlign: 'left', width: '100%', marginBottom: '10px', fontWeight: 'bold' }}>
+        <p style={{ fontSize: '0.9rem', lineHeight: '1.5', textAlign: 'center', width: '100%', marginBottom: '10px', fontWeight: 'bold' }}>
           추가 요청사항 (선택)
         </p>
         <textarea
@@ -162,7 +162,7 @@ function Upload() {
           opacity: !selectedFile ? 0.6 : 1, cursor: !selectedFile ? 'not-allowed' : 'pointer'
         }}
       >
-        그림 생성 시작
+        꽃등이 불러오기
       </button>
 
       <button 

@@ -5,16 +5,16 @@ import { AppContext } from '../App';
 function Loading() {
   const navigate = useNavigate();
   const { photoData, setPhotoData } = useContext(AppContext);
-  const [loadingText, setLoadingText] = useState("잠시만 기다려 주세요...");
+  const [loadingText, setLoadingText] = useState("꽃등아~");
   const [error, setError] = useState(null);
 
   useEffect(() => {
     // 텍스트 전환 애니메이션 처리
     const textInterval = setInterval(() => {
       setLoadingText(prev => 
-        prev === "잠시만 기다려 주세요..." ? "꽃등이가 달려오고 있어요!" : "잠시만 기다려 주세요..."
+        prev === "꽃등아~" ? "꽃등아~~" : "꽃등아~"
       );
-    }, 3000);
+    }, 1500);
 
       const processImage = async () => {
       // originalFile이 없으면 홈으로
