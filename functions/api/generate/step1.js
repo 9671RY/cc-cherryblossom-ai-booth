@@ -16,18 +16,14 @@ export async function onRequestPost(context) {
     // Text-to-Image용 보정 프롬프트 결합
     const finalPrompt = `${userPrompt}. 그리고 이 장면에 자연스럽게 어우러지는 귀엽고 작은 핑크색 벚꽃 랜턴 마스코트 캐릭터 '꽃등이'를 높은 품질의 일러스트 수채화풍으로 그려줘.`;
     
-    // 사용자가 요청한 최신 멀티턴(Chat) 방식 및 responseModalities 적용
-    const chat = ai.chats.create({
-      model: "gemini-3.1-flash-image-preview",
+    // 사용자가 요청한 최신 generateContent 방식 적용
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-pro-preview",
+      contents: finalPrompt,
       config: {
-        responseModalities: ["TEXT", "IMAGE"]
+        // 이미지를 반환하도록 설정
+        responseModalities: ["IMAGE"]
       }
-    });
-
-    const response = await chat.sendMessage({
-      message: [
-        { text: finalPrompt }
-      ]
     });
 
     let generatedBase64 = null;

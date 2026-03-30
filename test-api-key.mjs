@@ -7,18 +7,12 @@ async function main() {
   const prompt = "Preserve the image exactly, but add a small red dot to it.";
 
   try {
-    const chat = ai.chats.create({
-      model: "gemini-3.1-flash-image-preview",
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-pro-preview",
+      contents: prompt,
       config: {
-        responseModalities: ["TEXT", "IMAGE"]
+        responseModalities: ["IMAGE"]
       }
-    });
-
-    const response = await chat.sendMessage({
-      message: [
-        { text: prompt },
-        { inlineData: { mimeType: "image/png", data: dummyBase64 } }
-      ]
     });
     
     if (response.candidates && response.candidates[0].content && response.candidates[0].content.parts) {
