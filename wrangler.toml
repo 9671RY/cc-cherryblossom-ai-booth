@@ -6,7 +6,7 @@ pages_build_output_dir = "dist"
 [vars]
 # 사용자가 제공한 Gemini API 키는 보안상 GitHub 비밀로 등록하는 것이 좋지만,
 # 현재 실습 환경을 위해 명시합니다. 실제 배포 시엔 Cloudflare 대시보드에서 보호된 환경변수로 등록하세요.
-GEMINI_API_KEY = "AIzaSyBV2ppA89yHHHb8t4HbKFu8T2BLgwh65rw"
+GEMINI_API_KEY = "AIzaSyCtLUnYD6G3ZhFs4Bid3OzBT07SuUiL9e4"
 
 [[d1_databases]]
 binding = "D1_DB" # 이 바인딩 소문자/소문자 통칭 주의
