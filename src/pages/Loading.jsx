@@ -17,18 +17,16 @@ function Loading() {
     }, 3000);
 
     const processImage = async () => {
-      if (!photoData.originalFile) {
+      if (!photoData.textPrompt) {
         navigate('/');
         return;
       }
 
       try {
-        const formData = new FormData();
-        formData.append('image', photoData.originalFile);
-
         const response = await fetch('/api/process', {
           method: 'POST',
-          body: formData,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: photoData.textPrompt }),
         });
 
         if (!response.ok) {
@@ -37,31 +35,23 @@ function Loading() {
 
         const data = await response.json();
 
-        // FileReader로 원본 이미지를 Base64 인코딩하여 Context에 저장 (생성 API에서 사용)
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Data = reader.result.split(',')[1];
-          setPhotoData(prev => ({
-            ...prev,
-            uploadId: data.uploadId,
-            originalUrl: data.originalUrl,
-            imageBase64: base64Data,
-            mimeType: photoData.originalFile.type
-          }));
-          navigate('/result');
-        };
-        reader.readAsDataURL(photoData.originalFile);
+        setPhotoData(prev => ({
+          ...prev,
+          uploadId: data.uploadId,
+          originalUrl: data.originalUrl
+        }));
+        navigate('/result');
 
       } catch (err) {
         console.error(err);
-        setError("이미지를 처리하는 중 문제가 발생했습니다.");
+        setError("데이터를 처리하는 중 문제가 발생했습니다.");
       }
     };
 
     processImage();
 
     return () => clearInterval(textInterval);
-  }, [photoData.originalFile, navigate, setPhotoData]);
+  }, [photoData.textPrompt, navigate, setPhotoData]);
 
   if (error) {
     return (

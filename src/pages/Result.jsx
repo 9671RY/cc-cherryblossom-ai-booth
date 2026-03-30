@@ -12,7 +12,7 @@ function Result() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!photoData.uploadId || !photoData.imageBase64) {
+    if (!photoData.uploadId || !photoData.textPrompt) {
       navigate('/');
       return;
     }
@@ -26,8 +26,7 @@ function Result() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             uploadId: photoData.uploadId,
-            imageBase64: photoData.imageBase64,
-            mimeType: photoData.mimeType
+            prompt: photoData.textPrompt
           })
         });
         

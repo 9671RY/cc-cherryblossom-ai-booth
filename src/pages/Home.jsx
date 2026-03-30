@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 function Home() {
   const navigate = useNavigate();
@@ -26,8 +26,8 @@ function Home() {
 
       <div style={{ width: '100%', marginTop: 'auto' }}>
         <button className="primary" onClick={() => navigate('/upload')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <Camera size={20} />
-          엎어가기 시작
+          <Sparkles size={20} />
+          그림 그리기 시작
         </button>
         
         <p className="notice">

@@ -4,17 +4,17 @@ export async function onRequestPost(context) {
   try {
     const { request, env } = context;
     const body = await request.json();
-    const { uploadId, imageBase64, mimeType } = body;
+    const { uploadId, prompt: userPrompt } = body;
 
-    if (!uploadId || !imageBase64) {
-      return new Response(JSON.stringify({ error: "Missing uploadId or image data" }), { status: 400 });
+    if (!uploadId || !userPrompt) {
+      return new Response(JSON.stringify({ error: "Missing uploadId or prompt data" }), { status: 400 });
     }
 
     // Initialize Google Gen AI with the provided API key
     const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
-    // 수정된 프롬프트: 원본 사진(얼굴, 배경, 스타일)을 100% 동일하게 유지하면서 어깨에만 캐릭터 합성 
-    const prompt = "Act as an expert image editor. Your ONLY task is to add a small, cute pink cherry blossom lantern mascot character named 'Kkot-deung-i' standing naturally on the person's shoulder and waving its hand happily. You MUST completely preserve the original person's face, body, clothing, and the background exactly as they are without ANY style changes or alterations. The final image must look like the original photo with just the mascot added. Maintain original aspect ratio.";
+    // Text-to-Image용 보정 프롬프트 결합
+    const finalPrompt = `${userPrompt}. 그리고 이 장면에 자연스럽게 어우러지는 귀엽고 작은 핑크색 벚꽃 랜턴 마스코트 캐릭터 '꽃등이'를 높은 품질의 일러스트 수채화풍으로 그려줘.`;
     
     // 사용자가 요청한 최신 멀티턴(Chat) 방식 및 responseModalities 적용
     const chat = ai.chats.create({
@@ -26,8 +26,7 @@ export async function onRequestPost(context) {
 
     const response = await chat.sendMessage({
       message: [
-        { text: prompt },
-        { inlineData: { mimeType: mimeType || "image/jpeg", data: imageBase64 } }
+        { text: finalPrompt }
       ]
     });
 

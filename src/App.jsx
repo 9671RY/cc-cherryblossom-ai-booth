@@ -13,7 +13,8 @@ function App() {
     originalFile: null,
     originalUrl: null,
     uploadId: null,
-    coordinates: null // {x, y, side}
+    coordinates: null, // {x, y, side}
+    textPrompt: ''
   });
 
   return (
