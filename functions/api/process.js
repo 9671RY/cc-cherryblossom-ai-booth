@@ -3,17 +3,28 @@
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
-    const body = await request.json();
-    const { prompt } = body;
+    const url = new URL(request.url);
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const prompt = formData.get('prompt') || '';
 
-    if (!prompt) {
-      return new Response(JSON.stringify({ error: "No prompt provided" }), { status: 400 });
+    if (!file) {
+      return new Response(JSON.stringify({ error: "No image file provided" }), { status: 400 });
     }
 
-    // 1. 이미지 원본이 없으므로 DB 에러를 막기 위해 더미 텍스트 삽입
-    const originalUrl = 'text-prompt-only';
+    // 파일 메타데이터 추출
+    const fileExtension = file.name.split('.').pop() || 'jpeg';
+    const timestamp = Date.now();
+    const filename = `original-${timestamp}.${fileExtension}`;
+    
+    // R2 버킷에 업로드
+    await env.R2_BUCKET.put(filename, file.stream(), {
+      httpMetadata: { contentType: file.type || `image/${fileExtension}` }
+    });
 
-    // 2. 데이터베이스에 레코드 생성
+    const originalUrl = `/cdn-cgi/image/width=800/cherryblossom-photos/${filename}`;
+
+    // 데이터베이스에 레코드 생성
     let uploadId = null;
     if (env.D1_DB) {
       const dbResult = await env.D1_DB.prepare(
@@ -23,13 +34,14 @@ export async function onRequestPost(context) {
         uploadId = dbResult.id;
       }
     } else {
-      uploadId = Date.now(); // 만약 D1 바인딩이 없다면 임시 ID
+      uploadId = timestamp; // 만약 D1 바인딩이 없다면 임시 ID
     }
 
-    // 3. 반환
+    // 반환
     return new Response(JSON.stringify({ 
       uploadId,
-      originalUrl
+      originalUrl,
+      prompt // Pass the prompt back if needed, but not strictly necessary here
     }), {
       headers: { 'Content-Type': 'application/json' }
     });

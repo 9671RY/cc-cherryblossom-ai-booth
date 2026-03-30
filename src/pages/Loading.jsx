@@ -16,17 +16,23 @@ function Loading() {
       );
     }, 3000);
 
-    const processImage = async () => {
-      if (!photoData.textPrompt) {
+      const processImage = async () => {
+      // originalFile이 없으면 홈으로
+      if (!photoData.originalFile) {
         navigate('/');
         return;
       }
 
       try {
+        const formData = new FormData();
+        formData.append('file', photoData.originalFile);
+        if (photoData.textPrompt) {
+          formData.append('prompt', photoData.textPrompt);
+        }
+
         const response = await fetch('/api/process', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: photoData.textPrompt }),
+          body: formData,
         });
 
         if (!response.ok) {
@@ -51,7 +57,7 @@ function Loading() {
     processImage();
 
     return () => clearInterval(textInterval);
-  }, [photoData.textPrompt, navigate, setPhotoData]);
+  }, [photoData.originalFile, photoData.textPrompt, navigate, setPhotoData]);
 
   if (error) {
     return (
