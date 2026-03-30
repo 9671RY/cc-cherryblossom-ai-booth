@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
     
     // 사용자가 요청한 최신 generateContent 방식 적용
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3.1-flash-image-preview",
       contents: finalPrompt,
       config: {
         // 이미지를 반환하도록 설정
