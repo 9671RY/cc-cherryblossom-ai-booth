@@ -94,7 +94,7 @@ function Result() {
       </button>
 
       <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', marginTop: '10px', textAlign: 'center', fontSize: '1.25rem', width: '100%', fontWeight: '500' }}>
-        축제를 함께 해주셔서 감사합니다 ❤️
+        축제를 함께 해주셔서 감사합니다 🌸
       </h1>
 
       {error ? (
