@@ -8,8 +8,10 @@ function Home() {
   return (
     <div className="page-container" style={{ gap: '2rem' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: 'var(--primary)', fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.4' }}>
-          2026 서초 양재천 벚꽃 등 축제<br/>마스코트 꽃등이
+        <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.5' }}>
+          <span style={{ color: '#222' }}>2026 서초 양재천</span><br/>
+          <span style={{ color: 'var(--primary)' }}>벚꽃등 축제</span><br/>
+          <span style={{ color: '#222' }}>마스코트 꽃등이</span>
         </h1>
         <h2 style={{ fontSize: '1.3rem', fontWeight: '500' }}>
           우리 축제 마스코트 꽃등이 업어가세요

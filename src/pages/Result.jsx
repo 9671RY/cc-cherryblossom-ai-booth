@@ -12,7 +12,7 @@ function Result() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!photoData.uploadId || !photoData.textPrompt) {
+    if (!photoData.uploadId) {
       navigate('/');
       return;
     }
@@ -115,6 +115,28 @@ function Result() {
             ) : resultImg ? (
               <img src={resultImg} alt="결과" style={{ width: '100%', height: 'auto', display: 'block' }} />
             ) : null}
+          </div>
+          
+          {/* 해시태그 복사 영역 */}
+          <div 
+            style={{ 
+              fontSize: '0.75rem', 
+              color: '#666', 
+              textAlign: 'center', 
+              marginBottom: '10px', 
+              padding: '8px', 
+              backgroundColor: '#f1f1f1', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              lineHeight: '1.4'
+            }}
+            onClick={() => {
+              navigator.clipboard.writeText("#서초문화원 #주식회사문화콘텐츠 #서초양재천벚꽃등축제 #꽃등이 #귀엽 #애니모먼트 #ai");
+              alert("해시태그가 복사되었습니다!");
+            }}
+          >
+            #서초문화원 #주식회사문화콘텐츠 #서초양재천벚꽃등축제<br/>#꽃등이 #귀엽 #애니모먼트 #ai<br/>
+            <span style={{ fontSize: '0.65rem', color: 'var(--primary)' }}>(클릭하여 복사)</span>
           </div>
           
           {/* 하단 모바일 최적화 버튼 50:50 정렬 */}
