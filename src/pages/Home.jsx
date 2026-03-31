@@ -72,26 +72,26 @@ function Home() {
           
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#555' }}>전화번호</label>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '5px' }}>
               <input 
                 type="tel" 
                 value={phone1}
                 onChange={(e) => setPhone1(e.target.value.replace(/[^0-9]/g, '').slice(0,3))}
-                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
+                style={{ flex: 1, minWidth: 0, padding: '10px 5px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
               />
               <span style={{ display: 'flex', alignItems: 'center', color: '#888' }}>-</span>
               <input 
                 type="tel" 
                 value={phone2}
                 onChange={(e) => setPhone2(e.target.value.replace(/[^0-9]/g, '').slice(0,4))}
-                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
+                style={{ flex: 1, minWidth: 0, padding: '10px 5px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
               />
               <span style={{ display: 'flex', alignItems: 'center', color: '#888' }}>-</span>
               <input 
                 type="tel" 
                 value={phone3}
                 onChange={(e) => setPhone3(e.target.value.replace(/[^0-9]/g, '').slice(0,4))}
-                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
+                style={{ flex: 1, minWidth: 0, padding: '10px 5px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', textAlign: 'center' }}
               />
             </div>
           </div>

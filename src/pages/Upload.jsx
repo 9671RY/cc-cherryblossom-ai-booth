@@ -5,7 +5,7 @@ import { Camera, Upload as UploadIcon, X } from 'lucide-react';
 
 function Upload() {
   const navigate = useNavigate();
-  const { setPhotoData } = useContext(AppContext);
+  const { photoData, setPhotoData } = useContext(AppContext);
   const [inputText, setInputText] = useState('');
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
