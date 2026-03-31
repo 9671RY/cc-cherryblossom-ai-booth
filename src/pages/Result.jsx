@@ -61,11 +61,12 @@ function Result() {
         fetch(`/api/share/${photoData.uploadId}`, { method: 'POST' });
         const response = await fetch(resultImg);
         const blob = await response.blob();
-        const file = new File([blob], `cherryblossom-waving.jpg`, { type: 'image/jpeg' });
+        const mascotStr = photoData.mascotName || '꽃등이';
+        const file = new File([blob], `cherryblossom-${mascotStr}.jpg`, { type: 'image/jpeg' });
         
         await navigator.share({
           title: '서초 양재 벚꽃등축제',
-          text: `올해 벚꽃축제는 서초문화원 양재벚꽃축제다.\n볼거리 먹거리 놀거리 최고 #서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제 #꽃등이 #귀엽 #애니모먼트 #ai`,
+          text: `올해 벚꽃축제는 서초문화원 양재벚꽃축제다.\n볼거리 먹거리 놀거리 최고 #서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제 #${mascotStr} #귀엽 #애니모먼트 #ai`,
           files: [file]
         });
       } catch (error) {
@@ -81,7 +82,7 @@ function Result() {
     if (!resultImg) return;
     const link = document.createElement('a');
     link.href = resultImg;
-    link.download = `꿀잼-꽃등이-합성.jpg`;
+    link.download = `꿀잼-${photoData.mascotName || '꽃등이'}-합성.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -109,7 +110,7 @@ function Result() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: '#888', padding: '40px' }}>
                 <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
                 <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
-                  문화콘텐츠 스태프들이<br/>꽃등이를 불러오고 있어요
+                  문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 불러오고 있어요
                 </p>
               </div>
             ) : resultImg ? (
@@ -131,11 +132,11 @@ function Result() {
               lineHeight: '1.4'
             }}
             onClick={() => {
-              navigator.clipboard.writeText("#서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제 #꽃등이 #귀엽 #애니모먼트 #ai");
+              navigator.clipboard.writeText(`#서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제 #${photoData.mascotName || '꽃등이'} #귀엽 #애니모먼트 #ai`);
               alert("해시태그가 복사되었습니다!");
             }}
           >
-            #서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제<br/>#꽃등이 #귀엽 #애니모먼트 #ai<br/>
+            #서초문화원 #주식회사문화콘텐츠 #서초양재벚꽃등축제<br/>#{photoData.mascotName || '꽃등이'} #귀엽 #애니모먼트 #ai<br/>
             <span style={{ fontSize: '0.65rem', color: 'var(--primary)' }}>(클릭하여 복사)</span>
           </div>
           

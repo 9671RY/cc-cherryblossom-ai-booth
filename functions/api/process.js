@@ -7,6 +7,9 @@ export async function onRequestPost(context) {
     const formData = await request.formData();
     const file = formData.get('file');
     const prompt = formData.get('prompt') || '';
+    const mascotName = formData.get('mascotName') || '꽃등이';
+    const providerName = formData.get('providerName') || null;
+    const providerPhone = formData.get('providerPhone') || null;
 
     if (!file) {
       return new Response(JSON.stringify({ error: "No image file provided" }), { status: 400 });
@@ -15,21 +18,27 @@ export async function onRequestPost(context) {
     // 파일 메타데이터 추출
     const fileExtension = file.name.split('.').pop() || 'jpeg';
     const timestamp = Date.now();
-    const filename = `original-${timestamp}.${fileExtension}`;
+    let filename = `original-${timestamp}.${fileExtension}`;
+    if (providerName || providerPhone) {
+      const namePart = providerName || '무명';
+      const phonePart = providerPhone ? `_${providerPhone}` : '';
+      filename = `${namePart}${phonePart}_${timestamp}.${fileExtension}`;
+    }
     
     // R2 버킷에 업로드
     await env.R2_BUCKET.put(filename, file.stream(), {
       httpMetadata: { contentType: file.type || `image/${fileExtension}` }
     });
 
-    const originalUrl = `/cdn-cgi/image/width=800/cherryblossom-photos/${filename}`;
+    const encodedFilename = encodeURIComponent(filename);
+    const originalUrl = `/cdn-cgi/image/width=800/cherryblossom-photos/${encodedFilename}`;
 
     // 데이터베이스에 레코드 생성
     let uploadId = null;
     if (env.D1_DB) {
       const dbResult = await env.D1_DB.prepare(
-        "INSERT INTO photos (original_url) VALUES (?) RETURNING id"
-      ).bind(originalUrl).first();
+        "INSERT INTO photos (original_url, mascot_name, provider_name, provider_phone) VALUES (?, ?, ?, ?) RETURNING id"
+      ).bind(originalUrl, mascotName, providerName, providerPhone).first();
       if (dbResult && dbResult.id) {
         uploadId = dbResult.id;
       }

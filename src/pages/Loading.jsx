@@ -5,14 +5,15 @@ import { AppContext } from '../App';
 function Loading() {
   const navigate = useNavigate();
   const { photoData, setPhotoData } = useContext(AppContext);
-  const [loadingText, setLoadingText] = useState("꽃등아~");
+  const mascot = photoData.mascotName || "꽃등이";
+  const [loadingText, setLoadingText] = useState(`${mascot}아~`);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     // 텍스트 전환 애니메이션 처리
     const textInterval = setInterval(() => {
       setLoadingText(prev => 
-        prev === "꽃등아~" ? "꽃등아~~" : "꽃등아~"
+        prev === `${mascot}아~` ? `${mascot}아~~` : `${mascot}아~`
       );
     }, 1500);
 
@@ -29,6 +30,9 @@ function Loading() {
         if (photoData.textPrompt) {
           formData.append('prompt', photoData.textPrompt);
         }
+        formData.append('mascotName', photoData.mascotName || '꽃등이');
+        if (photoData.providerName) formData.append('providerName', photoData.providerName);
+        if (photoData.providerPhone) formData.append('providerPhone', photoData.providerPhone);
 
         const response = await fetch('/api/process', {
           method: 'POST',

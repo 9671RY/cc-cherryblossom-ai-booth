@@ -23,13 +23,17 @@ export async function onRequestPost(context) {
     // 1. D1에서 원본 URL 가져오기
     let originalUrl = null;
     let originalFilename = null;
+    let providerName = null;
+    let providerPhone = null;
     if (env.D1_DB) {
       const dbResult = await env.D1_DB.prepare(
-        "SELECT original_url FROM photos WHERE id = ?"
+        "SELECT original_url, provider_name, provider_phone FROM photos WHERE id = ?"
       ).bind(uploadId).first();
       
       if (dbResult && dbResult.original_url) {
         originalUrl = dbResult.original_url;
+        providerName = dbResult.provider_name;
+        providerPhone = dbResult.provider_phone;
       }
     }
 
@@ -37,7 +41,7 @@ export async function onRequestPost(context) {
       throw new Error("원본 사진을 찾을 수 없습니다.");
     }
 
-    originalFilename = originalUrl.split('/').pop();
+    originalFilename = decodeURIComponent(originalUrl.split('/').pop());
 
     // 2. R2에서 유저 사진 가져오기
     const userImgObj = await env.R2_BUCKET.get(originalFilename);
@@ -96,7 +100,13 @@ export async function onRequestPost(context) {
 
     // 5. 결과 R2 버킷에 저장
     const fileExtension = 'jpeg';
-    const filename = `result1-${uploadId}-${Date.now()}.${fileExtension}`;
+    const timestamp = Date.now();
+    let filename = `result1-${uploadId}-${timestamp}.${fileExtension}`;
+    if (providerName || providerPhone) {
+      const namePart = providerName || '무명';
+      const phonePart = providerPhone ? `_${providerPhone}` : '';
+      filename = `${namePart}${phonePart}_결과_${timestamp}.${fileExtension}`;
+    }
     
     // base64 to Uint8Array
     const binaryString = atob(generatedBase64);
@@ -110,7 +120,8 @@ export async function onRequestPost(context) {
       httpMetadata: { contentType: `image/${fileExtension}` }
     });
     
-    const result1Url = `/cdn-cgi/image/width=800/cherryblossom-photos/${filename}`;
+    const encodedFilename = encodeURIComponent(filename);
+    const result1Url = `/cdn-cgi/image/width=800/cherryblossom-photos/${encodedFilename}`;
 
     // 6. DB 업데이트
     if (env.D1_DB) {

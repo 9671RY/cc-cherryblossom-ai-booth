@@ -14,7 +14,10 @@ function App() {
     originalUrl: null,
     uploadId: null,
     coordinates: null, // {x, y, side}
-    textPrompt: ''
+    textPrompt: '',
+    mascotName: '꽃등이',
+    providerName: null,
+    providerPhone: null
   });
 
   return (

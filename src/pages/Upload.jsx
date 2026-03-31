@@ -52,7 +52,9 @@ function Upload() {
 
   return (
     <div className="page-container" style={{ padding: '20px 15px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1 style={{ color: 'var(--primary)', marginBottom: '1.5rem', marginTop: '1rem', fontSize: '1.5rem', textAlign: 'center' }}>사진을 올리고 꽃등이를 만나보세요!</h1>
+      <h1 style={{ color: 'var(--primary)', marginBottom: '1.5rem', marginTop: '1rem', fontSize: '1.5rem', textAlign: 'center' }}>
+        사진을 올리고 {photoData.mascotName || '꽃등이'}(을)를 만나보세요!
+      </h1>
       
       <div 
         style={{ 
@@ -162,7 +164,7 @@ function Upload() {
           opacity: !selectedFile ? 0.6 : 1, cursor: !selectedFile ? 'not-allowed' : 'pointer'
         }}
       >
-        꽃등이 불러오기
+        {photoData.mascotName || '꽃등이'} 불러오기
       </button>
 
       <button 
