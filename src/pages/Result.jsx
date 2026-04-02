@@ -110,7 +110,8 @@ function Result() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: '#888', padding: '40px' }}>
                 <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
                 <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
-                  문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 불러오고 있어요
+                  문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 불러오고 있어요<br /><br />
+                  <span style={{ fontSize: '0.85rem' }}>이미지 생성은 약 2분 정도 소요됩니다. 인원이 많을 시 더 오래 걸릴 수 있으니 양해 부탁드리겠습니다. 감사합니다.</span>
                 </p>
               </div>
             ) : resultImg ? (
