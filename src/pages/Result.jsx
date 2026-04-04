@@ -10,6 +10,9 @@ function Result() {
   const [resultImg, setResultImg] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [queueStatus, setQueueStatus] = useState('initializing');
+  const [queuePosition, setQueuePosition] = useState(0);
 
   useEffect(() => {
     if (!photoData.uploadId) {
@@ -17,9 +20,46 @@ function Result() {
       return;
     }
 
+    let pollInterval = null;
     let isMounted = true;
 
-    const runStep = async () => {
+    const checkQueue = async () => {
+      try {
+        const res = await fetch('/api/generate/queue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uploadId: photoData.uploadId })
+        });
+        
+        if (!res.ok) throw new Error("Queue check failed");
+        const data = await res.json();
+        
+        if (!isMounted) return;
+
+        if (data.status === 'your_turn') {
+          // Polling 종료, 실제 생성 시작
+          if (pollInterval) clearInterval(pollInterval);
+          setQueueStatus('processing');
+          runGeneration();
+        } else if (data.status === 'waiting') {
+          setQueueStatus('waiting');
+          setQueuePosition(data.position);
+        } else {
+          // error / unknown -> fallback : 그냥 진행
+          if (pollInterval) clearInterval(pollInterval);
+          setQueueStatus('processing');
+          runGeneration();
+        }
+      } catch (err) {
+        console.error("Queue Check Error:", err);
+        // Queue 체크 에러시 그냥 시도 (안전장치)
+        if (pollInterval) clearInterval(pollInterval);
+        setQueueStatus('processing');
+        runGeneration();
+      }
+    };
+
+    const runGeneration = async () => {
       try {
         const res = await fetch('/api/generate/step1', {
           method: 'POST',
@@ -44,15 +84,21 @@ function Result() {
       } catch (err) {
         console.error("Execution Error:", err);
         if (isMounted) {
-          setError(`서버 에러가 발생했습니다: ${err.message}. API 키 권한(403)이나 한도(429) 문제일 수 있습니다.`);
+          setError(`서버 에러가 발생했습니다: ${err.message}.`);
           setIsLoading(false);
         }
       }
     };
 
-    runStep();
-    return () => { isMounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // 최초 1회 큐 체크
+    checkQueue();
+    // 3초 간격 큐 폴링
+    pollInterval = setInterval(checkQueue, 3000);
+
+    return () => { 
+      isMounted = false; 
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, []); // Run only once
 
   const handleShare = async () => {
@@ -109,10 +155,19 @@ function Result() {
             {isLoading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', color: '#888', padding: '40px' }}>
                 <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
-                <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
-                  문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 불러오고 있어요<br /><br />
-                  <span style={{ fontSize: '0.85rem' }}>이미지 생성은 약 2분 정도 소요됩니다. 인원이 많을 시 더 오래 걸릴 수 있으니 양해 부탁드리겠습니다. 감사합니다.</span>
-                </p>
+                {queueStatus === 'waiting' ? (
+                  <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
+                    잠시만 기다려주세요!<br />
+                    <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>현재 앞에 {queuePosition}명의 대기 인원이 있습니다.</strong><br /><br />
+                    <span style={{ fontSize: '0.85rem' }}>문화콘텐츠 스태프들이 순차적으로 작업 중입니다.<br />화면을 나가지 마시고 잠시만 기다려주세요 🌸</span>
+                  </p>
+                ) : (
+                  <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
+                    드디어 내 차례!<br />
+                    문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 얹어주고 있어요<br /><br />
+                    <span style={{ fontSize: '0.85rem' }}>생성 작업은 약 15~30초 정도 소요됩니다.<br />멋지게 만들어 드릴테니 잠시만 대기해주세요!</span>
+                  </p>
+                )}
               </div>
             ) : resultImg ? (
               <img src={resultImg} alt="결과" style={{ width: '100%', height: 'auto', display: 'block' }} />

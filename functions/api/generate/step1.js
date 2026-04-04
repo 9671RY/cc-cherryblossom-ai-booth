@@ -11,10 +11,12 @@ function arrayBufferToBase64(buffer) {
 }
 
 export async function onRequestPost(context) {
+  let globalUploadId = null;
   try {
     const { request, env } = context;
     const body = await request.json();
     const { uploadId, prompt: userPrompt } = body;
+    globalUploadId = uploadId;
 
     if (!uploadId) {
       return new Response(JSON.stringify({ error: "Missing uploadId data" }), { status: 400 });
@@ -123,11 +125,16 @@ export async function onRequestPost(context) {
     const encodedFilename = encodeURIComponent(filename);
     const result1Url = `/cdn-cgi/image/width=800/cherryblossom-photos/${encodedFilename}`;
 
-    // 6. DB 업데이트
+    // 6. DB 업데이트 (photos 테이블 및 큐 상태 업데이트)
     if (env.D1_DB) {
       await env.D1_DB.prepare(
         "UPDATE photos SET result1_url = ? WHERE id = ?"
       ).bind(result1Url, uploadId).run();
+
+      // 큐 정리
+      await env.D1_DB.prepare(
+        "UPDATE generation_queue SET status = 'completed', updated_at = CURRENT_TIMESTAMP WHERE upload_id = ?"
+      ).bind(uploadId).run();
     }
 
     // 7. 성공 응답
@@ -141,6 +148,18 @@ export async function onRequestPost(context) {
 
   } catch (error) {
     console.error("Step 1 API Error:", error.stack || error.message);
+    
+    // 에러 발생시 큐 실패 처리
+    if (context.env.D1_DB && globalUploadId) {
+      try {
+        await context.env.D1_DB.prepare(
+          "UPDATE generation_queue SET status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE upload_id = ?"
+        ).bind(globalUploadId).run();
+      } catch (e) {
+        // 무시
+      }
+    }
+
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
