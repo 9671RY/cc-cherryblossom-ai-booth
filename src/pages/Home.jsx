@@ -131,12 +131,15 @@ function Home() {
       </div>
 
       <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <label style={{ color: 'red', fontWeight: 'bold', fontSize: '0.95rem', display: 'block', textAlign: 'center', marginBottom: '-8px' }}>
+          ⬆ 이 마스코트 이름지어주기
+        </label>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input 
             type="text" 
             value={inputName} 
             onChange={(e) => setInputName(e.target.value)} 
-            placeholder="이름 지어주기" 
+            placeholder="이름 입력" 
             style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', outline: 'none' }}
           />
           <button 

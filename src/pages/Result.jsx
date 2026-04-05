@@ -165,7 +165,7 @@ function Result() {
                   <p style={{ fontSize: '1rem', textAlign: 'center', lineHeight: '1.4' }}>
                     드디어 내 차례!<br />
                     문화콘텐츠 스태프들이<br/>{photoData.mascotName || '꽃등이'}(을)를 얹어주고 있어요<br /><br />
-                    <span style={{ fontSize: '0.85rem' }}>생성 작업은 약 15~30초 정도 소요됩니다.<br />멋지게 만들어 드릴테니 잠시만 대기해주세요!</span>
+                    <span style={{ fontSize: '0.85rem' }}>생성 작업은 약 1분 정도 소요됩니다.<br />멋지게 만들어 드릴테니 잠시만 대기해주세요!</span>
                   </p>
                 )}
               </div>
