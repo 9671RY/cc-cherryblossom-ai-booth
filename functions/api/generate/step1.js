@@ -62,8 +62,17 @@ export async function onRequestPost(context) {
     const mascotBuffer = await mascotRes.arrayBuffer();
     const mascotBase64 = arrayBufferToBase64(mascotBuffer);
 
-    // 4. Gemini API 호출
-    const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+    // 4. Gemini API 호출 (로테이션 적용)
+    const apiKeys = (env.GEMINI_API_KEY || "").split(',').map(k => k.trim()).filter(k => k);
+    if (apiKeys.length === 0) {
+      throw new Error("GEMINI_API_KEY가 설정되지 않았습니다.");
+    }
+    
+    // uploadId를 기준으로 키 선택 (동일 사용자는 동일 키 우선 사용 유도)
+    const keyIndex = globalUploadId ? (parseInt(globalUploadId) % apiKeys.length) : 0;
+    const selectedApiKey = apiKeys[keyIndex];
+    
+    const ai = new GoogleGenAI({ apiKey: selectedApiKey });
     
     // 수채화 스타일 프롬프트 작성
     const basePrompt = "매우 중요: 첫 번째 사진(사용자 얼굴)과 두 번째 사진(벚꽃 캐릭터 '꽃등이')의 원본 형태, 생김새, 특징을 절대 변형하지 말고 있는 그대로 똑같이 유지하세요. 창의적인 변형(AI의 상상력 추가)을 절대 금지합니다. 오직 원본 이미지들을 그대로 유지한 채, 인물의 어깨 위에 캐릭터가 자연스럽게 올려져 있는 구도로만 합성해 주세요. 그리고 그 합성된 전체 장면에만 옅고 부드러운 수채화(Watercolor) 필터 느낌을 입혀주세요.";

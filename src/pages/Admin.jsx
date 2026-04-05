@@ -17,11 +17,38 @@ function Admin() {
       });
   }, []);
 
+  const handleClearQueue = async () => {
+    if (!window.confirm("정말로 대기열을 초기화하시겠습니까? (처리 중/대기 중인 작업이 모두 리셋됩니다)")) return;
+    try {
+      const res = await fetch('/api/admin/clear-queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: 'cherry-blossom-clear' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+      } else {
+        alert("실패: " + (data.error || "알 수 없는 오류"));
+      }
+    } catch (err) {
+      alert("에러: " + err.message);
+    }
+  };
+
   if (loading) return <div className="page-container">Admin Loading...</div>;
 
   return (
     <div className="page-container" style={{ alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', overflowY: 'auto' }}>
-      <h1 style={{ color: 'var(--primary)' }}>Admin Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+        <h1 style={{ color: 'var(--primary)' }}>Admin Dashboard</h1>
+        <button 
+          onClick={handleClearQueue}
+          style={{ backgroundColor: '#ff4d4f', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          대기열 강제 초기화
+        </button>
+      </div>
       <h2 style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>총 공유 횟수: {stats.totalShares}회</h2>
       
       <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
